@@ -1,7 +1,7 @@
 /* jqBootstrapValidation
  * A plugin for automating validation on Twitter Bootstrap formatted forms.
  * 
- * http://www.github.com/samuelbetio/jqBootstrapValidation/
+ * https://github.com/samuelbetio/jqBootstrapValidation
  */
 
 /* This program is free software. It comes without any warranty, to
@@ -39,7 +39,9 @@
           var $form = $(this);
           var warningsFound = 0;
           var $inputs = $form.find("input,textarea,select").not("[type=submit],[type=image]");
-          $inputs.trigger("submit.validation").each(function (i, el) {
+          $inputs.trigger("submit.validation").trigger("validationLostFocus.validation");
+          
+          $inputs.each(function (i, el) {
             var $this = $(el),
               $controlGroup = $this.parents(".control-group").first();
             if (
@@ -48,7 +50,10 @@
               $controlGroup.removeClass("warning").addClass("error");
               warningsFound++;
             }
-          }).trigger("validationLostFocus.validation");
+          });
+          
+          $inputs.trigger("validationLostFocus.validation");
+          
           if (warningsFound) {
             if (settings.options.preventSubmit) {
               e.preventDefault();
@@ -390,7 +395,7 @@
               var errorsFound = [];
 
               $.each(validators, function (validatorType, validatorTypeArray) {
-                if (value || value.length || (params && params.includeEmpty) || (settings.validatorTypes[validatorType].blockSubmit && (params && params.submitting))) {
+                if (value || value.length || (params && params.includeEmpty) || (!!settings.validatorTypes[validatorType].blockSubmit && params && !!params.submitting)) {
                   $.each(validatorTypeArray, function (i, validator) {
                     if (settings.validatorTypes[validatorType].validate($this, value, validator)) {
                       errorsFound.push(validator.message);
@@ -540,8 +545,8 @@
 					return {};
 				},
 				validate: function ($this, value, validator) {
-					return (value.length == 0  && ! validator.negative)
-						|| (value.length > 0 && validator.negative);
+					return !!(value.length == 0  && ! validator.negative)
+						|| !!(value.length > 0 && validator.negative);
 				},
         blockSubmit: true
 			},
@@ -550,14 +555,15 @@
 				init: function ($this, name) {
 					var element = $this.parents("form").first().find("[name=\"" + $this.data("validation" + name + "Match") + "\"]").first();
 					element.bind("validation.validation", function () {
-						$this.trigger("change.validation");
+						$this.trigger("change.validation", {submitting: true});
 					});
 					return {"element": element};
 				},
 				validate: function ($this, value, validator) {
 					return (value != validator.element.val() && ! validator.negative) 
 						|| (value == validator.element.val() && validator.negative);
-				}
+				},
+        blockSubmit: true
 			},
 			max: {
 				name: "max",
@@ -604,28 +610,30 @@
 				init: function ($this, name) {
 					var elements = $this.parents("form").first().find("[name=\"" + $this.attr("name") + "\"]");
 					elements.bind("click.validation", function () {
-						$this.trigger("change.validation");
+						$this.trigger("change.validation", {includeEmpty: true});
 					});
 					return {maxchecked: $this.data("validation" + name + "Maxchecked"), elements: elements};
 				},
 				validate: function ($this, value, validator) {
 					return (validator.elements.filter(":checked").length > validator.maxchecked && ! validator.negative)
 						|| (validator.elements.filter(":checked").length <= validator.maxchecked && validator.negative);
-				}
+				},
+        blockSubmit: true
 			},
 			minchecked: {
 				name: "minchecked",
 				init: function ($this, name) {
 					var elements = $this.parents("form").first().find("[name=\"" + $this.attr("name") + "\"]");
 					elements.bind("click.validation", function () {
-						$this.trigger("change.validation");
+						$this.trigger("change.validation", {includeEmpty: true});
 					});
 					return {minchecked: $this.data("validation" + name + "Minchecked"), elements: elements};
 				},
 				validate: function ($this, value, validator) {
 					return (validator.elements.filter(":checked").length < validator.minchecked && ! validator.negative)
 						|| (validator.elements.filter(":checked").length >= validator.minchecked && validator.negative);
-				}
+				},
+        blockSubmit: true
 			}
 		},
 		builtInValidators: {
@@ -711,10 +719,10 @@
 		var value = $this.val();
 		var type = $this.attr("type");
 		if (type == "checkbox") {
-			value = ($this.is(":checked") ? "1" : "0");
+			value = ($this.is(":checked") ? value : "");
 		}
 		if (type == "radio") {
-			value = ($('input[name="' + $this.attr("name") + '"]:checked').length > 0 ? "1" : "0");
+			value = ($('input[name="' + $this.attr("name") + '"]:checked').length > 0 ? value : "");
 		}
 		return value;
 	}
