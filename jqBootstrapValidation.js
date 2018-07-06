@@ -1,9 +1,9 @@
 /* jqBootstrapValidation
  * A plugin for automating validation on Twitter Bootstrap formatted forms.
  * 
- * v1.3.1
+ * v1.3.2
  *
- * https://samuelbetio.github.io/jqBootstrapValidation/
+ * https://samuelbetio.github.io/jqBootstrapValidation//
  */
 
 /* This program is free software. It comes without any warranty, to
@@ -17,9 +17,9 @@
 	var defaults = {
 		options: {
 			sniffHtml: true, // sniff for 'required', 'maxlength', etc
-			preventSubmit: true, // stop the form submit event from firing
-      submitError: false,
-      submitSuccess: false
+			preventSubmit: true, // stop the form submit event from firing if validation fails
+			submitError: false,
+			submitSuccess: false
 		},
     methods: {
       init : function( options ) {
@@ -30,14 +30,13 @@
 
         var $siblingElements = this;
 
-        $.unique(
-          $siblingElements.map(
-            function () {
-              var $this = $(this);
-              return $this.parents("form")[0];
-            }
-          )
-        ).bind("submit", function (e) {
+        var uniqueForms = $.unique(
+          $siblingElements.map( function () {
+            return $(this).parents("form")[0];
+          }).toArray()
+        );
+
+        $(uniqueForms).bind("submit", function (e) {
           var $form = $(this);
           var warningsFound = 0;
           var $inputs = $form.find("input,textarea,select").not("[type=submit],[type=image]");
