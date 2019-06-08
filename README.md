@@ -1,13 +1,21 @@
 jqBootstapValidation
 ====================
 
-A JQuery validation framework for bootstrap forms.
+A JQuery validation framework for bootstrap forms. 
 
 Displays validation errors in `help-block` elements as users type.
 
-More information is available at https://samuelbetio.github.io/jqBootstrapValidation/
+[![Build Status](https://github.com/samuelbetio/jqBootstrapValidation)
 
-Changes
-=======
+How to use?
+-----------
+The documentation is [here](http://ReactiveRaven.github.com/jqBootstrapValidation).
 
-1.3.2 - Patch for infinite-loop/slow-script-warning in IE8 - thanks to @cityofbayawan
+Developers
+------------------
+Want to contribute? Great! Check out [CONTRIBUTING.md]
+
+
+
+
+[![endorse](http://api.coderwall.com/reactiveraven/endorsecount.png)](http://coderwall.com/reactiveraven)
